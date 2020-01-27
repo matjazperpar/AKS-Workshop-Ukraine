@@ -1,0 +1,3 @@
+mongodbUsername: orders-user
+mongodbPassword: orders-password
+mongodbDatabase: akschallenge

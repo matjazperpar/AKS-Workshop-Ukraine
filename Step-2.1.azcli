@@ -1,0 +1,46 @@
+#login to azure
+az login --service-principal --username APP_ID --password "APP_SECRET" --tenant TENANT_ID
+
+# List subscriptions
+az account list -o table
+
+# Set location parameter - optional
+location="westeurope"
+
+# Get latest AKS version
+version=$(az aks get-versions -l $location --query 'orchestrators[-1].orchestratorVersion' -o tsv)
+echo $version
+
+
+# Get resource group name
+group=$(az group list  --query [].name -o tsv)
+echo $group
+
+location="westeurope"
+group=event-zt-aks
+az group create --name $group --location $location
+
+# Set other parameters
+name=event-aks-01
+
+
+# Create AKS Cluster
+az aks create --resource-group $group \
+    --name $name \
+    --location $location \
+    --kubernetes-version $version \
+    --generate-ssh-keys \
+    --load-balancer-sku basic \
+    --service-principal YYYYYYYYYYYYYYYYYYY \
+    --client-secret XXXXXXXXXXXXXXXXXXXXXX
+
+
+# Connect to AKS Cluster with kubectl
+az aks get-credentials --resource-group $group --name $name
+
+
+# Play around with kubectl
+kubectl get nodes
+kubectl get nodes -o wide
+kubectl get namespaces
+kubectl get pods --all-namespaces  -o wide

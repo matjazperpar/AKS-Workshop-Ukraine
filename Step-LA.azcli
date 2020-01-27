@@ -1,0 +1,15 @@
+group=event-de-aks
+location="westeurope"
+name="event-la-230857"
+az resource create --resource-type Microsoft.OperationalInsights/workspaces \
+ --name event-la-230857 \
+ --resource-group $group \
+ --location $location \
+ --properties '{}' -o table
+
+
+az resource show --resource-type Microsoft.OperationalInsights/workspaces \
+    --resource-group $group --name $name --query "id" -o tsv
+
+
+az aks enable-addons --resource-group $group --name event-de-01 --addons monitoring --workspace-resource-id /subscriptions/a922669e-29a4-4b52-bc78-f648774d67ad/resourcegroups/event-de-aks/providers/microsoft.operationalinsights/workspaces/event-la-230857

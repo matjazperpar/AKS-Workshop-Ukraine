@@ -1,0 +1,8 @@
+group=event-aks
+az acr create --resource-group $group \
+    --name matperacr1234 \
+    --sku Standard  \
+    --location westeurope
+
+name=event-01
+az aks update -n $name -g $group --attach-acr matperacr1234

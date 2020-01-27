@@ -1,0 +1,16 @@
+
+kubectl apply -f frontend-deployment.yaml
+kubectl apply -f frontend-service.yaml
+
+
+# create ingress controller
+kubectl create namespace ingress
+helm repo update
+helm install ingress stable/nginx-ingress --namespace ingress
+
+
+kubectl get svc  -n ingress    ingress-nginx-ingress-controller -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
+
+kubectl apply -f frontend-ingress.yaml
+
+az acr create --resource-group ge-matper-aks  --name matper2acr1333 --sku Standard --location westeurope

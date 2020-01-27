@@ -1,0 +1,39 @@
+# helm
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm repo update
+
+#show sample chart for mongodb 
+#https://github.com/helm/charts/tree/master/stable/mongodb
+
+
+helm install orders-mongo stable/mongodb \
+    --set mongodbUsername=orders-user \
+    --set mongodbPassword=orders-password \
+    --set mongodbDatabase=akschallenge
+
+
+kubectl run orders-mongo-mongodb-client --rm --tty -i --restart='Never' \ 
+    --image bitnami/mongodb  \ 
+    --command -- mongo admin \
+    --host orders-mongo-mongodb \
+    --authenticationDatabase admin \
+    -u root -p $MONGODB_ROOT_PASSWORD
+
+# option2
+#create files with values
+helm upgrade --install orders-mongo stable/mongodb -f mongodb-values.yml
+
+# test it out
+#accessible via orders-mongo-mongodb.default.svc.cluster.local
+
+export MONGODB_ROOT_PASSWORD=$(kubectl get secret orders-mongo-mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode)
+export MONGODB_PASSWORD=$(kubectl get secret orders-mongo-mongodb -oders-mongo-mongodb -o jsonpath="{.data.mongodb-password}" | base64 --decode)
+
+kubectl run orders-mongo-mongodb-client --rm --tty -i --restart='Never' --image bitnami/mongodb --command -- mongo admin --host orders-mongo-mongodb --authenticationDatabase admin -u root -p $MONGODB_ROOT_PASSWORD
+
+# Create secrets
+kubectl create secret generic mongodb \
+    --from-literal=mongoHost="orders-mongo-mongodb.default.svc.cluster.local" \
+    --from-literal=mongoUser="orders-user"  \
+    --from-literal=mongoPassword="orders-password"
+

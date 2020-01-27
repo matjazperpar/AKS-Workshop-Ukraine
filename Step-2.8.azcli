@@ -1,0 +1,20 @@
+group=$(az group list  --query [].name -o tsv)
+echo $group
+
+az acr create --resource-group $group  --name matperacr999 --sku Standard --location westeurope
+
+git clone https://github.com/Azure/azch-captureorder.git
+cd azch-captureorder
+
+
+az acr build -t "captureorder:{{.Run.ID}}" -r matperacr999 .
+
+
+az aks update -n $name -g $group --attach-acr matperacr999 
+
+
+kubectl edit deployment captureorder
+kubectl set image deployment/captureorder captureorder=matperacr999.azurecr.io/captureorder:cb1 --record
+
+
+
